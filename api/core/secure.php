@@ -127,7 +127,10 @@ class WGTransition
 			{
 				$npara[] = urlencode( $k ) . ( ( $v != "" ) ? ( "=" . urlencode( $v ) ) : "" );
 			}
-			$u                      = $_SERVER["SCRIPT_NAME"] . ( ( count( $npara ) != 0 ) ? "?" . implode( '&', $npara ) : "" );
+
+			$path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+			$u    = $path . ( ( count( $npara ) != 0 ) ? "?" . implode( '&', $npara ) : "" );
+
 			$_SERVER["REQUEST_URI"] = $u;
 			$_GET[ self::TRANSKEY ] = $tid;
 
