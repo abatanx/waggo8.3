@@ -1,12 +1,12 @@
 <?php
 /**
- * waggo8.1 configuration
+ * waggo8.3 configuration
  */
 $_SERVER['SERVER_NAME'] = '127.0.0.1';
 $_SERVER['SERVER_PORT'] = '80';
 
 /**
- * waggo8.1 configuration
+ * waggo8.3 configuration
  */
 const WG_DEBUG           = false;
 const WG_SQLDEBUG        = false;
@@ -22,7 +22,7 @@ const WG_LOGTYPE = 0;
 define( 'WG_ENCODING', mb_internal_encoding() );
 
 define( 'WGCONF_DIR_ROOT', WG_INSTALLDIR );
-define( 'WGCONF_DIR_WAGGO', realpath( WG_INSTALLDIR . '/../../waggo8.1' ) );
+define( 'WGCONF_DIR_WAGGO', realpath( WG_INSTALLDIR . '/../../waggo8.3' ) );
 define( 'WGCONF_DIR_PUB', WG_INSTALLDIR . '/pub' );
 define( 'WGCONF_DIR_SYS', WG_INSTALLDIR . '/sys' );
 define( 'WGCONF_DIR_TPL', WG_INSTALLDIR . '/tpl' );

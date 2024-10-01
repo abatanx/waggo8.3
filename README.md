@@ -1,6 +1,6 @@
 # waggo8
 
 ## INSTALL
-$ mkdir sys && cd $_; git clone https://github.com/abatanx/waggo8.1
+$ mkdir sys && cd $_; git clone https://github.com/abatanx/waggo8.3
 
-$ php waggo8.1/install/install.php
+$ php waggo8.3/install/install.php

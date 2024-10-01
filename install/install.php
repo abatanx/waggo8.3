@@ -1,11 +1,11 @@
 <?php
 /**
- * waggo8.1
- * @copyright 2013-2022 CIEL, K.K., project waggo.
+ * waggo8.3
+ * @copyright 2013-2024 CIEL, K.K., project waggo.
  * @license MIT
  */
 
-const WG_INSTALL_VERSION = '8.1';
+const WG_INSTALL_VERSION = '8.3';
 
 require_once __DIR__ . '/lib/stdin.php';
 require_once __DIR__ . '/lib/lib.php';
