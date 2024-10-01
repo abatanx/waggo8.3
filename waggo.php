@@ -24,7 +24,14 @@ function wgdie( $msg )
 
 if ( defined( 'WG_UNITTEST' ) )
 {
-	$configFile = __DIR__ . '/ut/unittest-config.php';
+	if ( defined( 'WG_UNITTEST_CONFIG' ) )
+	{
+		$configFile = WG_UNITTEST_CONFIG;
+	}
+	else
+	{
+		$configFile = __DIR__ . '/ut/unittest-config.php';
+	}
 }
 else
 {
