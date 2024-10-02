@@ -31,9 +31,18 @@ class WGPara
 	public function __construct(
 		$tags = [], $name = null, $filter = null, $gauntlet = null, $default = null, $flags = 0
 	) {
-		$this->tags                     = $tags;
-		$this->name                     = $name;
-		$this->gauntlet                 = $gauntlet;
+		$this->tags = $tags;
+		$this->name = $name;
+
+		if ( is_string( $gauntlet ) )
+		{
+			$this->gauntlet = eval( 'return ' . $gauntlet . ';' );
+		}
+		else
+		{
+			$this->gauntlet = $gauntlet;
+		}
+
 		$this->filter                   = $filter;
 		$this->default                  = $default;
 		$this->isIgnoreInitByDefault    = ! ! ( $flags & WP_IGNORE_INIT_BY_DEFAULT );
