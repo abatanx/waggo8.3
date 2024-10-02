@@ -171,6 +171,11 @@ class WGParameters
 		}, array_values( $param ), array_keys( $param ) ) );
 	}
 
+	public function getURL( string $baseURL, array $tags = [], bool $isExcludeNull = false ): string
+	{
+		return wg_remake_url( $baseURL, $this->getParams( $tags, $isExcludeNull ) );
+	}
+
 	public function byGET( array $tags = [] ): static
 	{
 		return $this->by( static::METHOD_GET, $tags );
