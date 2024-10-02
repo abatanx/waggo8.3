@@ -18,4 +18,10 @@ list( $host, $port ) = explode( ':', $argv[1] );
 $_SERVER['SERVER_NAME'] = ! empty( $host ) ? $host : '';
 $_SERVER['SERVER_PORT'] = ! empty( $port ) ? $port : 80;
 
+$_SERVER["REQUEST_URI"]     = $_SERVER["REQUEST_URI"] ?? null;
+$_SERVER["REQUEST_METHOD"]  = $_SERVER["REQUEST_METHOD"] ?? null;
+$_SERVER["SERVER_PROTOCOL"] = $_SERVER["SERVER_PROTOCOL"] ?? null;
+$_SERVER["HTTP_USER_AGENT"] = $_SERVER["HTTP_USER_AGENT"] ?? null;
+$_SERVER["REMOTE_PORT"]     = $_SERVER["REMOTE_PORT"] ?? null;
+
 require_once __DIR__ . '/waggo.php';
