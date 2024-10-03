@@ -19,6 +19,20 @@ class WGParameters
 		$this->initByDefault();
 	}
 
+	static public function storeQuery(
+		WGFController $ownerController,
+		string $method = WGParameters::METHOD_GET, array $tags = []
+	): static {
+		return ( new static() )->by( $method, $tags )->store( $ownerController );
+	}
+
+	static public function restoreQuery(
+		WGFController $ownerController,
+		string $method = WGParameters::METHOD_GET, array $tags = []
+	): ?static {
+		return static::restore( $ownerController, $method, $tags );
+	}
+
 	protected function forEachReflection( callable $callback, array $tags = [] ): static
 	{
 		$dontNarrowingDown = count( $tags ) === 0;
