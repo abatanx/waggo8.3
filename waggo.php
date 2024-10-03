@@ -7,7 +7,7 @@
 
 const WG_NAME      = "waggo";
 const WG_VERSION   = "8.3";
-const WG_COPYRIGHT = "Copyright (C) 2013-2022 CIEL, K.K., project waggo.";
+const WG_COPYRIGHT = "Copyright (C) 2013-2024 CIEL, K.K., project waggo.";
 
 function wgdie( $msg )
 {
@@ -57,19 +57,24 @@ else
 
 require_once __DIR__ . '/api/core/lib.php';
 
-$remote_adr = wg_get_remote_adr();
 wg_log_write( WGLOG_INFO, "++ " . WG_NAME . " " . WG_VERSION );
 wg_log_write( WGLOG_INFO, "** PHP version     = [" . phpversion() . "]" );
 wg_log_write( WGLOG_INFO, "** Server          = [" . php_uname( "a" ) . "]" );
 
-@wg_log_write( WGLOG_INFO, "** REQUEST_URI     = [{$_SERVER['REQUEST_URI']}]" );
-@wg_log_write( WGLOG_INFO, "** REQUEST_METHOD  = [{$_SERVER['REQUEST_METHOD']}] {$_SERVER['SERVER_PROTOCOL']}" );
-@wg_log_write( WGLOG_INFO, "** HTTP_USER_AGENT = [{$_SERVER['HTTP_USER_AGENT']}]" );
-@wg_log_write( WGLOG_INFO, "** REMOTE          = [{$remote_adr}:{$_SERVER['REMOTE_PORT']}]" );
-
-if ( isset( $argv ) && is_array( $argv ) )
+if ( ! defined( 'WG_CLI' ) )
 {
-	@wg_log_write( WGLOG_INFO, "** ARGV            = " . implode( " ", $argv ) );
+	$remote_adr = wg_get_remote_adr();
+	@wg_log_write( WGLOG_INFO, "** REQUEST_URI     = [{$_SERVER['REQUEST_URI']}]" );
+	@wg_log_write( WGLOG_INFO, "** REQUEST_METHOD  = [{$_SERVER['REQUEST_METHOD']}] {$_SERVER['SERVER_PROTOCOL']}" );
+	@wg_log_write( WGLOG_INFO, "** HTTP_USER_AGENT = [{$_SERVER['HTTP_USER_AGENT']}]" );
+	@wg_log_write( WGLOG_INFO, "** REMOTE          = [{$remote_adr}:{$_SERVER['REMOTE_PORT']}]" );
+}
+else
+{
+	if ( isset( $argv ) && is_array( $argv ) )
+	{
+		@wg_log_write( WGLOG_INFO, "** ARGV            = " . implode( " ", $argv ) );
+	}
 }
 
 // Save for original request URI
