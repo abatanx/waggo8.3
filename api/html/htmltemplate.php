@@ -442,14 +442,47 @@ ___END___;
 			} );
 
 		/**
-		 * {$n}
+		 * Immediately reference
 		 */
 		$immediate_references = false;
+
+		/**
+		 * {$%n}
+		 */
+		self::parser( $code, self::__RE__( '{\$%(.+?)}' ), 1, $each_targets,
+			function ( $state, $val_string ) {
+				$state->e = '';
+				$s = explode('/', $val_string);
+				if( count($s) > 0 )
+				{
+					$ss = explode( ':', array_pop( $s ) );
+					$ss[0] = $ss[0] ?? null;
+					$ss[1] = $ss[1] ?? null;
+
+					list( $k, $e ) = $ss;
+					$state->e = !empty($e) ? '.\':' . addslashes($e) . '\'' : '';
+					return implode( '/', array_merge( $s, [ $k ] ) );
+				}
+				else
+				{
+					return $val_string;
+				}
+			},
+			function( $state ) use (&$immediate_references) {
+				$immediate_references = true;
+				return sprintf('$__IRF__->_v($__ARY__[%s%s])', $state->var, $state->e );
+			}
+		);
+
+		/**
+		 * {$n}
+		 */
 		self::parser( $code, self::__RE__( '{\$(.+?)}' ), 1, $each_targets, false,
 			function ( $state ) use (&$immediate_references) {
 				$immediate_references = true;
 				return sprintf('$__IRF__->_v(%s)', $state->var );
-		} );
+			} );
+
 		if( $immediate_references ) $code = self::__CODE__('$__IRF__=new HTE();') . $code;
 		unset($immediate_references);
 
