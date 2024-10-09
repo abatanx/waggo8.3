@@ -418,7 +418,11 @@ ___END___;
 				$s        = explode( '/', $val_string );
 				if ( count( $s ) > 0 )
 				{
-					list( $k, $e ) = explode( ':', array_pop( $s ) );
+					$ss = explode( ':', array_pop( $s ) );
+					$ss[0] = $ss[0] ?? null;
+					$ss[1] = $ss[1] ?? null;
+
+					list( $k, $e ) = $ss;
 					$state->e = !empty($e) ? '.\':' . addslashes($e) . '\'' : '';
 					return implode( '/', array_merge( $s, [ $k ] ) );
 				}
