@@ -11,6 +11,6 @@ abstract class WGV8BasicPagination extends WGV8Object
 
 	abstract public function limit(): int;
 
-	abstract public function setTotal( $total ): self;
+	abstract public function setTotal( int $total ): self;
 
 }
