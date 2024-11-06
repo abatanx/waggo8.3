@@ -131,7 +131,9 @@ function wg_remake_uri( array $params = [] ): string
 {
 	$param = wg_remake_get( $params );
 
-	return ( $param === '' ) ? $_SERVER['SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME'] . "?{$param}";
+	$path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+
+	return $path . ( strlen( $param ) > 0 ? "?" . $param : '' );
 }
 
 /**
