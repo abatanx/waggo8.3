@@ -13,7 +13,7 @@ class WGDBMSPropertyPostgreSQL extends WGDBMSProperty
 	const FIELD_TYPE_TD = '/^(date)/';
 	const FIELD_TYPE_TT = '/^(time)/';
 	const FIELD_TYPE_TS = '/^(timestamp)/';
-	const FIELD_TYPE_S = '/^(char|text|varchar|json)/';
+	const FIELD_TYPE_S = '/^(char|text|varchar|json|uuid)/';
 	const FIELD_TYPE_D = '/^(double|real|numeric)/';
 	const FIELD_TYPE_B = '/^bool/';
 	const FIELD_TYPE_BOOL_TRUE = 't';
