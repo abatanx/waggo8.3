@@ -62,10 +62,10 @@ function wg_query_to_array( string $query ): array
 	{
 		if ( $q !== '' )
 		{
-			list( $k, $v ) = explode( '=', $q );
-			$k       = urldecode( (string) $k );
-			$v       = urldecode( (string) $v );
-			$r[ $k ] = urldecode( $v );
+			@list( $k, $v ) = explode( '=', $q, 2 );
+			$k       = urldecode( (string) ($k ?? '') );
+			$v       = urldecode( (string) ($v ?? '') );
+			$r[ $k ] = $v;
 		}
 	}
 
