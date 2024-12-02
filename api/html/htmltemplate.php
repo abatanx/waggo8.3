@@ -258,50 +258,60 @@ ___END___;
 	 */
 	static protected function parser( &$subject, $regex, $index, $each_targets, $prepare, $translation )
 	{
-		$state   = new stdClass();
+		$state = new stdClass();
+
 		$subject = preg_replace_callback( $regex,
 			function ( $match ) use ( $state, $prepare, $translation, $index, $each_targets ) {
+				$state->var   = '';
+				$state->vars  = [];
 				$state->match = $match;
-				$val_string   = $prepare ? $prepare( $state, $state->match[ $index ] ) : $state->match[ $index ];
 
-				if ( preg_match( self::__RE__( '^(#|\*)(.+)$' ), $val_string, $m2 ) )
+				$space_separated_values = explode( ' ', $state->match[ $index ] );
+				foreach ( $space_separated_values as $val_each )
 				{
-					switch($m2[1])
+					$var        = null;
+					$val_string = $prepare ? $prepare( $state, $val_each ) : $val_each;
+					if ( preg_match( self::__RE__( '^(#|\*)(.+)$' ), $val_string, $m2 ) )
 					{
-						case '#':
-							$state->var = sprintf( '$__IDX__[\'%s\']', addslashes( $m2[2] ) );
-							break;
-						case '*':
-							$state->var = sprintf( '$__VAL__[\'%s\']', addslashes( $m2[2] ) );
-							break;
-						default:
-							$state->var = '';
-							break;
-					}
-
-				}
-				else
-				{
-					$ary_path = [];
-					$val_path = [];
-					if ( $index !== false )
-					{
-						$path_elements = explode( "/", $val_string );
-						foreach ( $path_elements as $idx => $x )
+						switch ( $m2[1] )
 						{
-							$val_path[] = $x;
-							if ( $idx != count( $path_elements ) - 1 && is_array( $each_targets ) && in_array( join( "/", $val_path ), $each_targets ) )
+							case '#':
+								$var = sprintf( '$__IDX__[\'%s\']', addslashes( $m2[2] ) );
+								break;
+							case '*':
+								$var = sprintf( '$__VAL__[\'%s\']', addslashes( $m2[2] ) );
+								break;
+							default:
+								$var = '';
+								break;
+						}
+						$state->vars[] = $var;
+					}
+					else
+					{
+						$ary_path = [];
+						$val_path = [];
+						if ( $index !== false )
+						{
+							$path_elements = explode( "/", $val_string );
+							foreach ( $path_elements as $idx => $x )
 							{
-								$ary_path[] = "['" . addslashes($x) . "'][\$__IDX__['" . addslashes( implode( "/", $val_path ) ) . "']]";
-							}
-							else
-							{
-								$ary_path[] = "['" . addslashes($x) . "']";
+								$val_path[] = $x;
+								if ( $idx != count( $path_elements ) - 1 && is_array( $each_targets ) && in_array( join( "/", $val_path ), $each_targets ) )
+								{
+									$ary_path[] = "['" . addslashes( $x ) . "'][\$__IDX__['" . addslashes( implode( "/", $val_path ) ) . "']]";
+								}
+								else
+								{
+									$ary_path[] = "['" . addslashes( $x ) . "']";
+								}
 							}
 						}
+						$state->vars[] = sprintf( '$__ARY__%s', implode( '', $ary_path ) );
 					}
-					$state->var = sprintf( '$__ARY__%s', implode( '', $ary_path ) );
 				}
+
+				$state->var = count( $state->vars ) > 0 ? $state->vars[0] : '';
 
 				return $translation( $state );
 			}, $subject );
@@ -334,7 +344,7 @@ ___END___;
 		self::parser( $code, $each_regex, 1, $each_targets, false, function ( $state ) {
 			return self::__CODE__(
 				'if(isset(%1$s) && is_array(%1$s)) foreach(%1$s as $__IDX__[\'%2$s\'] => $__VAL__[\'%2$s\'] ){',
-				$state->var, addslashes($state->match[1])
+				$state->var, addslashes( $state->match[1] )
 			);
 		} );
 		self::parser( $code, self::__RE__( '<!--{/each}-->' ), false, [], false, function () {
@@ -399,7 +409,8 @@ ___END___;
 		 * {val n}
 		 */
 		self::parser( $code, self::__RE__( '{([0-9a-z_]+) (.+?)}' ), 2, $each_targets, false, function ( $state ) {
-			return self::__CODE__( 'if(isset(%1$s)) echo HTE::%2$s(%1$s);', $state->var, strtolower( $state->match[1] ) );
+			$vars = implode(',', array_map( fn($v) => "($v ?? null)", $state->vars ));
+			return self::__CODE__( 'if(isset(%1$s)) echo HTE::%3$s(%2$s);', $state->var, $vars, strtolower( $state->match[1] ) );
 		} );
 
 		/**
@@ -418,12 +429,13 @@ ___END___;
 				$s        = explode( '/', $val_string );
 				if ( count( $s ) > 0 )
 				{
-					$ss = explode( ':', array_pop( $s ) );
+					$ss    = explode( ':', array_pop( $s ) );
 					$ss[0] = $ss[0] ?? null;
 					$ss[1] = $ss[1] ?? null;
 
 					list( $k, $e ) = $ss;
-					$state->e = !empty($e) ? '.\':' . addslashes($e) . '\'' : '';
+					$state->e = ! empty( $e ) ? '.\':' . addslashes( $e ) . '\'' : '';
+
 					return implode( '/', array_merge( $s, [ $k ] ) );
 				}
 				else
@@ -456,15 +468,16 @@ ___END___;
 		self::parser( $code, self::__RE__( '{\$%(.+?)}' ), 1, $each_targets,
 			function ( $state, $val_string ) {
 				$state->e = '';
-				$s = explode('/', $val_string);
-				if( count($s) > 0 )
+				$s        = explode( '/', $val_string );
+				if ( count( $s ) > 0 )
 				{
-					$ss = explode( ':', array_pop( $s ) );
+					$ss    = explode( ':', array_pop( $s ) );
 					$ss[0] = $ss[0] ?? null;
 					$ss[1] = $ss[1] ?? null;
 
 					list( $k, $e ) = $ss;
-					$state->e = !empty($e) ? '.\':' . addslashes($e) . '\'' : '';
+					$state->e = ! empty( $e ) ? '.\':' . addslashes( $e ) . '\'' : '';
+
 					return implode( '/', array_merge( $s, [ $k ] ) );
 				}
 				else
@@ -472,9 +485,10 @@ ___END___;
 					return $val_string;
 				}
 			},
-			function( $state ) use (&$immediate_references) {
+			function ( $state ) use ( &$immediate_references ) {
 				$immediate_references = true;
-				return sprintf('$__IRF__->_v($__ARY__[%s%s])', $state->var, $state->e );
+
+				return sprintf( '$__IRF__->_v($__ARY__[%s%s])', $state->var, $state->e );
 			}
 		);
 
@@ -482,13 +496,17 @@ ___END___;
 		 * {$n}
 		 */
 		self::parser( $code, self::__RE__( '{\$(.+?)}' ), 1, $each_targets, false,
-			function ( $state ) use (&$immediate_references) {
+			function ( $state ) use ( &$immediate_references ) {
 				$immediate_references = true;
-				return sprintf('$__IRF__->_v(%s)', $state->var );
+
+				return sprintf( '$__IRF__->_v(%s)', $state->var );
 			} );
 
-		if( $immediate_references ) $code = self::__CODE__('$__IRF__=new HTE();') . $code;
-		unset($immediate_references);
+		if ( $immediate_references )
+		{
+			$code = self::__CODE__( '$__IRF__=new HTE();' ) . $code;
+		}
+		unset( $immediate_references );
 
 		/**
 		 * end
