@@ -271,7 +271,7 @@ ___END___;
 				{
 					$var        = null;
 					$val_string = $prepare ? $prepare( $state, $val_each ) : $val_each;
-					if ( preg_match( self::__RE__( '^(#|\*)(.+)$' ), $val_string, $m2 ) )
+					if ( preg_match( self::__RE__( '^(#|\*|@)(.+)$' ), $val_string, $m2 ) )
 					{
 						switch ( $m2[1] )
 						{
@@ -280,6 +280,9 @@ ___END___;
 								break;
 							case '*':
 								$var = sprintf( '$__VAL__[\'%s\']', addslashes( $m2[2] ) );
+								break;
+							case '@':
+								$var = $m2[2];
 								break;
 							default:
 								$var = '';
