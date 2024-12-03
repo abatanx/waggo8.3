@@ -121,12 +121,8 @@ class WGTransition
 		{
 			$tid = self::createTransitionId();
 
-			$npara                   = [];
 			$gpara[ self::TRANSKEY ] = $tid;
-			foreach ( $gpara as $k => $v )
-			{
-				$npara[] = urlencode( $k ) . ( ( $v != "" ) ? ( "=" . urlencode( $v ) ) : "" );
-			}
+			$npara                   = $this->makeGetParams( $gpara );
 
 			$path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
 			$u    = $path . ( ( count( $npara ) != 0 ) ? "?" . implode( '&', $npara ) : "" );
@@ -141,5 +137,33 @@ class WGTransition
 		}
 
 		return false;
+	}
+
+	/**
+	 * 渡された値からGETパラメータを生成する
+	 *
+	 * @param $value
+	 * @param $key
+	 *
+	 * @return array
+	 */
+	protected function makeGetParams( $value, $key = null ): array
+	{
+		$npara = [];
+
+		foreach ( $value as $k => $v )
+		{
+			$k = $key === null ? $k : $key;
+			if ( ! is_array( $v ) )
+			{
+				$npara[] = urlencode( $k ) . ( ( $v != "" ) ? ( "=" . urlencode( $v ) ) : "" );
+			}
+			else
+			{
+				$npara = array_merge( $npara, $this->makeGetParams( $v, $k . '[]' ) );
+			}
+		}
+
+		return $npara;
 	}
 }
