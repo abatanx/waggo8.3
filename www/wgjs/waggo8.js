@@ -19,7 +19,7 @@ WG8.remakeURI = function (uri, opts) {
 	r = []
 	k = {}
 	p = (uri + "?").split("?")
-	a = p[1].split("&")
+	a = p[1].split("&").filter(v=>v!=='')
 	$.each(a, function (i, v) {
 		t = v.split("=")
 		pk = t.length > 0 ? decodeURIComponent(t[0].replace(/\+/g, '%20')) : ''
