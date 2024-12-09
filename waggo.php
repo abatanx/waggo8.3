@@ -110,7 +110,6 @@ require_once __DIR__ . '/api/session/session.php';
 require_once __DIR__ . '/api/html/wiki.php';
 require_once __DIR__ . '/api/html/canvas.php';
 require_once __DIR__ . '/api/html/color.php';
-require_once __DIR__ . '/api/mail/mail.php';
 require_once __DIR__ . '/api/dbms/interface.php';
 require_once __DIR__ . '/api/datetime/datetime.php';
 

@@ -5,9 +5,12 @@
  * @license MIT
  */
 
-if( !file_exists(WGCONF_PEAR . '/Mail.php') ) return false;
+// Composerの pear/mail を使用している場合はオートロードしているので処理しない
+if ( ! class_exists( 'Mail' ) ) {
+	if( !file_exists(WGCONF_PEAR . '/Mail.php') ) return false;
 
-require_once WGCONF_PEAR . '/Mail.php' ;
+	require_once WGCONF_PEAR . '/Mail.php' ;
+}
 
 require_once __DIR__ . '/encoding.php';
 
