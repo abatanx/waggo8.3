@@ -155,7 +155,7 @@ abstract class WGFController
 	 * フォームのエンコード方法を URLEncoded に設定する。
 	 * @return self
 	 */
-	public function setFormURLENCODED()
+	public function setFormURLENCODED(): self
 	{
 		$this->formEnctype = "application/x-www-form-urlencoded";
 
@@ -167,7 +167,7 @@ abstract class WGFController
 	 * @return self
 	 * @noinspection PhpUnused
 	 */
-	public function setFormMULTIPART()
+	public function setFormMULTIPART(): self
 	{
 		$this->formEnctype = "multipart/form-data";
 
@@ -197,7 +197,7 @@ abstract class WGFController
 	 *
 	 * @return WGV8Object ビューのインスタンス
 	 */
-	protected function initView( string $id ): WGV8Object
+	public function initView( string $id ): WGV8Object
 	{
 		$this->views[ $id ]->initController( $this );
 		$this->views[ $id ]->initSession( $this->session );
@@ -219,7 +219,7 @@ abstract class WGFController
 	 *
 	 * @return WGV8Object ビューのインスタンス
 	 **/
-	protected function addView( string $id, WGV8Object $view ): WGV8Object
+	public function addView( string $id, WGV8Object $view ): WGV8Object
 	{
 		if ( WG_CONTROLLERDEBUG )
 		{
@@ -239,7 +239,7 @@ abstract class WGFController
 	 * @return WGV8Object ビューのインスタンス
 	 * @noinspection PhpUnused
 	 */
-	protected function restoreView( WGV8Object $view ): WGV8Object
+	public function restoreView( WGV8Object $view ): WGV8Object
 	{
 		$id = $view->getName();
 
@@ -260,7 +260,7 @@ abstract class WGFController
 	 *
 	 * @return WGV8Object Viewインスタンス
 	 */
-	protected function view( string $id ): WGV8Object
+	public function view( string $id ): WGV8Object
 	{
 		if ( ! ( $this->views[ $id ] ?? null ) instanceof WGV8Object )
 		{
@@ -277,7 +277,7 @@ abstract class WGFController
 	 *
 	 * @return self
 	 **/
-	protected function delView( string $id ): self
+	public function delView( string $id ): self
 	{
 		$this->views[ $id ] = null;
 		unset( $this->views[ $id ] );
@@ -290,7 +290,7 @@ abstract class WGFController
 	 * @return self
 	 * @noinspection PhpUnused
 	 */
-	protected function delAllViews(): self
+	public function delAllViews(): self
 	{
 		$this->views = [];
 
@@ -301,7 +301,7 @@ abstract class WGFController
 	 * コントローラーに登録されたビューが、エラー状態のものが存在するかチェックする。
 	 * @return boolean エラー状態が存在している場合は true を、存在しない場合は false を返す。
 	 */
-	protected function hasError(): bool
+	public function hasError(): bool
 	{
 		if ( WG_CONTROLLERDEBUG )
 		{
@@ -331,7 +331,7 @@ abstract class WGFController
 	 * @return WGV8Object[] ビュー配列
 	 * @noinspection PhpUnused
 	 */
-	protected function errorViews(): array
+	public function errorViews(): array
 	{
 		$errorViews = [];
 		foreach ( $this->views as $v )
@@ -349,7 +349,7 @@ abstract class WGFController
 	 * コントローラーに登録されたビューのエラーをすべてクリアする。
 	 * @return self
 	 */
-	protected function clearError(): self
+	public function clearError(): self
 	{
 		foreach ( $this->views as $k => $p )
 		{
