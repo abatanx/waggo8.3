@@ -39,6 +39,8 @@ class WGMModel
 	 */
 	public array $primaryKeys;
 
+	protected string $id;
+
 	protected bool $isModelDebug;
 	public array $assign;
 	public string $tableName;
@@ -87,6 +89,7 @@ class WGMModel
 		$this->defaultFilter = new WGMModelFILTER();
 
 		$this->tableName   = $tableName;
+		$this->id          = $tableName;
 		$this->fields      = [];
 		$this->primaryKeys = [];
 
@@ -178,6 +181,18 @@ class WGMModel
 	public function getTable(): string
 	{
 		return $this->tableName;
+	}
+
+	public function getId(): string
+	{
+		return $this->id;
+	}
+
+	public function setId( string $id ): self
+	{
+		$this->id = $id;
+
+		return $this;
 	}
 
 	public function getAlias(): string
@@ -732,6 +747,41 @@ class WGMModel
 		}
 
 		return $wheres;
+	}
+
+	static protected function findJoinModelsByIdOnHierarchy( string $id, WGMModel $m ): array
+	{
+		$foundModel = [];
+		if ( $m->getId() === $id )
+		{
+			$foundModel[] = $m;
+		}
+		foreach ( $m->joins as $join )
+		{
+			$foundModel = [ ...$foundModel, ...self::findJoinModelsByIdOnHierarchy( $id, $join->getJoinModel() ) ];
+		}
+
+		return $foundModel;
+	}
+
+	public function getJoinModelById( string $id ): ?WGMModel
+	{
+		/**
+		 * @var WGMModel[] $foundModels
+		 */
+		$foundModels = $this->findJoinModelsByIdOnHierarchy( $id, $this );
+		switch ( count( $foundModels ) )
+		{
+			case 0:
+				return null;
+			case 1:
+				return $foundModels[0];
+			default:
+				wg_log_write( WGLOG_FATAL,
+					'The model with a duplicate ID(%s) was found. Please ensure each model\'s ID is unique to avoid duplication.',
+					$id
+				);
+		}
 	}
 
 	public function getJoinExternalFields(): array
