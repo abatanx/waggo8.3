@@ -66,6 +66,8 @@ class WGMModel
 
 	protected ?string $offsetKeyword, $limitKeyword;
 
+	protected array $selectStreamJoinModels = [];
+
 	public function __construct( string $tableName, ?WGDBMS $dbms = null )
 	{
 		global $WGMModelID;
@@ -981,15 +983,18 @@ class WGMModel
 		return [ implode( ', ', $fields ), $tables, $wheres, $orderby, $this->offsetKeyword, $this->limitKeyword ];
 	}
 
+
 	/**
 	 * テーブルを指定されたキーで検索する。
 	 *
 	 * @param string|array... キー文字列、配列
 	 *
-	 * @return WGMModel インスタンス
+	 * @return array インスタンス
 	 */
-	public function select( ...$keys ): self
+	public function selectQuery( ...$keys ): self
 	{
+		$this->selectStreamJoinModels = [];
+
 		$keys = self::arrayFlatten( $keys );
 		$this->logInfo( 'WGMModel::select( %s )', implode( ' , ', $keys ) );
 
@@ -1010,7 +1015,22 @@ class WGMModel
 		$this->dbms->E( $q );
 		$this->recs = $this->dbms->RECS();
 
-		$joinedModels = $this->getJoinModels();
+		$this->selectStreamJoinModels = $this->getJoinModels();
+
+		return $this;
+	}
+
+
+	/**
+	 * テーブルを指定されたキーで検索する。
+	 *
+	 * @param string|array... キー文字列、配列
+	 *
+	 * @return WGMModel インスタンス
+	 */
+	public function select( ...$keys ): self
+	{
+		$joinedModels = $this->selectQuery( ...$keys )->selectStreamJoinModels;
 
 		$n = 0;
 		while ( $f = $this->dbms->F() )
@@ -1043,6 +1063,67 @@ class WGMModel
 		}
 
 		return $this;
+	}
+
+	/**
+	 * テーブルを指定されたキーで検索し、ストリームで受信できるように準備する。
+	 */
+	public function selectAsStream( ...$keys ): self
+	{
+		$this->selectQuery( ...$keys );
+
+		return $this;
+	}
+
+	/**
+	 * テーブルを指定されたキーで検索した結果を、ストリームで取得する。
+	 */
+	public function fetchJoinedVarsAsStream(): ?array
+	{
+		$joinedModels = $this->selectStreamJoinModels;
+
+		if ( $f = $this->dbms->F() )
+		{
+			foreach ( $joinedModels as $joinedModel )
+			{
+				foreach ( $joinedModel->getFields() as $k )
+				{
+					$joinedModel->avars[0][ $k ] = $joinedModel->fieldValue( $k, $f[ $joinedModel->aliasName . '.' . $k ], 'PHP' );
+				}
+			}
+		}
+		else
+		{
+			foreach ( $joinedModels as $joinedModel )
+			{
+				foreach ( $joinedModel->getFields() as $k )
+				{
+					$joinedModel->avars = [];
+				}
+			}
+		}
+
+		foreach ( $joinedModels as $joinedModel )
+		{
+			if ( isset( $joinedModel->avars[0] ) )
+			{
+				foreach ( $joinedModel->getFields() as $k )
+				{
+					$joinedModel->setAssignedValue( $k, $joinedModel->avars[0][ $k ] );
+				}
+			}
+			else
+			{
+				foreach ( $joinedModel->getFields() as $k )
+				{
+					$joinedModel->setAssignedValue( $k, null );
+				}
+			}
+		}
+
+		$joinedAvars = $this->getJoinedAvars();
+
+		return count( $joinedAvars ) > 0 ? $joinedAvars[0] : null;
 	}
 
 	/**
