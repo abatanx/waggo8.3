@@ -691,7 +691,7 @@ class WGDateTime
 	}
 
 	/**
-	 * Y-m-d H:i:s でフォーマットされた文字列を返す
+	 * DATE_ATOM でフォーマットされた文字列を返す
 	 *
 	 * @return string|false
 	 */
