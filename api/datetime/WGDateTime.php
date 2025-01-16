@@ -695,6 +695,16 @@ class WGDateTime
 	 *
 	 * @return string|false
 	 */
+	public function getAtomString(): string|false
+	{
+		return $this->getByFormat( DATE_ATOM );
+	}
+
+	/**
+	 * Y-m-d H:i:s でフォーマットされた文字列を返す
+	 *
+	 * @return string|false
+	 */
 	public function getYMDHISString(): string|false
 	{
 		return $this->getByFormat( "Y-m-d H:i:s" );
