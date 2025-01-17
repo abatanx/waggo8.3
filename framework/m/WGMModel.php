@@ -68,6 +68,12 @@ class WGMModel
 
 	protected array $selectStreamJoinModels = [];
 
+	/**
+	 * onSessionCache
+	 */
+	static array $_fieldsCache = [];
+	static array $_primaryKeysCache = [];
+
 	public function __construct( string $tableName, ?WGDBMS $dbms = null )
 	{
 		global $WGMModelID;
@@ -111,8 +117,38 @@ class WGMModel
 		$this->offsetKeyword = null;
 		$this->limitKeyword  = null;
 
-		$this->fields      = $this->dbms->property()->detectFields( $this->dbms, $tableName );
-		$this->primaryKeys = $this->dbms->property()->detectPrimaryKeys( $this->dbms, $tableName );
+		if ( defined( 'WGCONF_MODEL_CACHE' ) && WGCONF_MODEL_CACHE )
+		{
+			$id = spl_object_id( $this->dbms );
+
+			if ( isset( self::$_fieldsCache[ $id ][ $tableName ] ) )
+			{
+				$this->fields = self::$_fieldsCache[ $id ][ $tableName ];
+			}
+			else
+			{
+				$this->fields = $this->dbms->property()->detectFields( $this->dbms, $tableName );
+
+				self::$_fieldsCache[ $id ][ $tableName ] = $this->fields;
+			}
+
+			if ( isset( self::$_primaryKeysCache[ $id ][ $tableName ] ) )
+			{
+				$this->primaryKeys = self::$_primaryKeysCache[ $id ][ $tableName ];
+			}
+			else
+			{
+				$this->primaryKeys = $this->dbms->property()->detectPrimaryKeys( $this->dbms, $tableName );
+
+				self::$_primaryKeysCache[ $id ][ $tableName ] = $this->primaryKeys;
+			}
+		}
+		else
+		{
+			$this->fields      = $this->dbms->property()->detectFields( $this->dbms, $tableName );
+			$this->primaryKeys = $this->dbms->property()->detectPrimaryKeys( $this->dbms, $tableName );
+		}
+
 	}
 
 	public static function _( string $tableName, ?WGDBMS $dbms = null ): self
