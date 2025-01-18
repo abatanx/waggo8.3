@@ -31,7 +31,7 @@ class WGDateTime
 	/**
 	 * 有効な日付であるかチェックする
 	 */
-	static function isValidDate($yy,$mm,$dd)
+	static function isValidDate( $yy, $mm, $dd )
 	{
 
 	}
@@ -102,6 +102,28 @@ class WGDateTime
 	public function __construct()
 	{
 		$this->setUT( 0 );
+	}
+
+	static public function _( ?string $dateTimeString = null, ?int $unixTime = null ): ?static
+	{
+		$dt = new static();
+		if ( $dateTimeString !== null )
+		{
+			try
+			{
+				$dt->setStrToTime( $dateTimeString );
+			}
+			catch ( WGDateTimeException $e )
+			{
+				return null;
+			}
+		}
+		else if( $unixTime !== null )
+		{
+			$dt->setUT( $unixTime );
+		}
+
+		return $dt;
 	}
 
 	/**
@@ -786,7 +808,8 @@ class WGDateTime
 	public function copy(): self
 	{
 		$d = new static();
-		return $d->copyFrom($this);
+
+		return $d->copyFrom( $this );
 	}
 
 	/**
