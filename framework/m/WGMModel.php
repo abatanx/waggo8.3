@@ -1056,6 +1056,37 @@ class WGMModel
 		return $this;
 	}
 
+	/**
+	 * テーブルを指定されたキーで検索するクエリ文字列を生成する
+	 *
+	 * @param string|array... キー文字列、配列
+	 *
+	 * @return string クエリ文字列
+	 */
+	public function getQueryString( ...$keys ): string
+	{
+		$this->selectStreamJoinModels = [];
+
+		$keys = self::arrayFlatten( $keys );
+		$this->logInfo( 'WGMModel::getQueryString( %s )', implode( ' , ', $keys ) );
+
+		if ( $this->pager )
+		{
+			$count = $this->count( $keys );
+			$this->pager->setTotal( $count );
+			$ofs = $this->pager->offset();
+			$lim = $this->pager->limit();
+
+			$this->logInfo( 'Pager %s(rows) offset %s limit %s', $count, $ofs, $lim );
+			$this->offset( $ofs, $lim );
+		}
+
+		list( $f, $t, $w, $ord, $ofs, $lim ) = $this->makeQuery( $keys );
+
+		$q = sprintf( /** @lang text */ 'SELECT %s FROM %s%s%s%s%s', $f, $t, $w, $ord, $ofs, $lim );
+
+		return $q;
+	}
 
 	/**
 	 * テーブルを指定されたキーで検索する。
