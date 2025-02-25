@@ -9,7 +9,7 @@ class WGMailParser
 {
 	protected $plain, $header, $body;
 	protected $content_type, $content_subtype, $content_params, $content_encoding, $content_charset;
-	protected $to, $from;
+	protected $to, $from, $subject;
 	protected $headers;
 
 	public function __construct( $plain )
